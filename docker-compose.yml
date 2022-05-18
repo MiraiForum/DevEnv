@@ -1,0 +1,44 @@
+version: "3.0"
+services:
+  nodebb:
+    build: .
+    ports:
+      - "4567:4567"
+    volumes:
+      - .modules:/modules
+      - uploads:/uploads
+    environment:
+      DB_USER: ${DB_USER-root}
+      DB_PASSWORD: ${BD_PASSWORD-rewtfdgg}
+      URL: ${NODEBB_URL-http://127.0.0.1}
+    links:
+      - mongo
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+        MONGO_INITDB_ROOT_USERNAME: ${DB_USER-root}
+        MONGO_INITDB_ROOT_PASSWORD: ${BD_PASSWORD-rewtfdgg}
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_USER-root}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_PASSWORD-rewtfdgg}
+      ME_CONFIG_MONGODB_URL: mongodb://${DB_USER-root}:${DB_PASSWORD-rewtfdgg}@mongo:27017/
+    links:
+      - mongo
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:
+  uploads:
